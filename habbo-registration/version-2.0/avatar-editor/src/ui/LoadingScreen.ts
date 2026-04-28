@@ -1,3 +1,5 @@
+import { resolveAssetPath } from '../utils/assetPaths';
+
 const TOTAL_FRAMES = 14;
 const FRAME_INTERVAL = 83; // ~12fps, matching original Flash frame rate
 
@@ -6,7 +8,6 @@ let currentFrame = 0;
 let timerId: number | null = null;
 
 export function loadFrames(assetsPath: string): Promise<void> {
-  const base = assetsPath + (assetsPath.endsWith('/') ? '' : '/');
   const promises: Promise<void>[] = [];
 
   for (let i = 1; i <= TOTAL_FRAMES; i++) {
@@ -17,7 +18,7 @@ export function loadFrames(assetsPath: string): Promise<void> {
         img.onerror = () => resolve();
       })
     );
-    img.src = `${base}frames/${i}.png`;
+    img.src = resolveAssetPath(assetsPath, `frames/${i}.png`);
     frames[i - 1] = img;
   }
 

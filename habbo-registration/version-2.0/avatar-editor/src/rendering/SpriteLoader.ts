@@ -1,4 +1,5 @@
 import type { AssetBundle } from '../assets/AssetBundle';
+import { resolveAssetPath } from '../utils/assetPaths';
 
 export class SpriteLoader {
   private spriteCache: Map<string, HTMLImageElement> = new Map();
@@ -7,7 +8,7 @@ export class SpriteLoader {
   private assetBundle: AssetBundle | null = null;
 
   constructor(assetsPath: string) {
-    this.assetsPath = assetsPath.endsWith('/') ? assetsPath : assetsPath + '/';
+    this.assetsPath = assetsPath;
   }
 
   setAssetBundle(assetBundle: AssetBundle | null): void {
@@ -28,7 +29,7 @@ export class SpriteLoader {
       return this.assetBundle.loadImage(assetPath);
     }
 
-    return this.loadImage(`${this.assetsPath}${assetPath}`);
+    return this.loadImage(resolveAssetPath(this.assetsPath, assetPath));
   }
 
   async loadSprite(filename: string): Promise<HTMLImageElement> {

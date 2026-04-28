@@ -64,6 +64,8 @@ function getDemoHtml() {
     window.HabboEditorConfig = {
       userHasClub: false,
       showClubSelections: true,
+      // Shared download base for frames/, data/, sprites/, ui/, and assets.zip.
+      // Leave empty to load relative to this HTML file.
       assetsPath: '',
       assetBundlePath: 'assets.zip'
     };
@@ -113,8 +115,8 @@ async function main() {
     await fs.rm(path.join(distDir, dirName), { recursive: true, force: true });
   }
 
-  await fs.rm(demoDir, { recursive: true, force: true });
   await fs.mkdir(demoDir, { recursive: true });
+  await fs.rm(path.join(demoDir, 'frames'), { recursive: true, force: true });
   await fs.copyFile(path.join(distDir, 'habbo-editor.iife.js'), path.join(demoDir, 'habbo-editor.iife.js'));
   await fs.copyFile(bundlePath, path.join(demoDir, 'assets.zip'));
   await fs.cp(path.join(distDir, 'frames'), path.join(demoDir, 'frames'), { recursive: true });

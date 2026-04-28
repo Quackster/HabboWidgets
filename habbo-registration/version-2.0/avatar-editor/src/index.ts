@@ -18,6 +18,7 @@ import { AvatarDisplay } from './ui/AvatarDisplay';
 import { RandomizeButton } from './ui/RandomizeButton';
 import { HabboEditorBridge } from './api/HabboEditorBridge';
 import { loadFrames, startLoadingAnimation, stopLoadingAnimation } from './ui/LoadingScreen';
+import { resolveAssetPath } from './utils/assetPaths';
 
 export class HabboAvatarEditor {
   private config: EditorConfig;
@@ -49,19 +50,8 @@ export class HabboAvatarEditor {
     this.init();
   }
 
-  private resolveAssetPath(basePath: string, assetPath: string): string {
-    if (!assetPath) return '';
-    if (/^(?:[a-z]+:)?\/\//i.test(assetPath) || assetPath.startsWith('/') || assetPath.startsWith('data:')) {
-      return assetPath;
-    }
-    if (!basePath) return assetPath;
-
-    const normalizedBase = basePath.endsWith('/') ? basePath : `${basePath}/`;
-    return `${normalizedBase}${assetPath}`;
-  }
-
   private async tryLoadAssetBundle(assetsPath: string): Promise<AssetBundle | null> {
-    const bundlePath = this.resolveAssetPath(assetsPath, this.config.assetBundlePath);
+    const bundlePath = resolveAssetPath(assetsPath, this.config.assetBundlePath);
     if (!bundlePath) {
       return null;
     }
@@ -85,7 +75,7 @@ export class HabboAvatarEditor {
       return;
     }
 
-    const dataPath = this.resolveAssetPath(assetsPath, 'data/');
+    const dataPath = resolveAssetPath(assetsPath, 'data/');
 
     await Promise.all([
       FigureData.getInstance().loadFromUrl(dataPath + 'figuredata.xml'),
