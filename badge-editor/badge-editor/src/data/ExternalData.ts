@@ -1,13 +1,11 @@
-import { getAssetsPath, getConfig } from '../api/Bridge';
+import { getConfig } from '../api/Bridge';
+import { loadRuntimeTextAsset } from '../runtime/RuntimeAssetLoader';
 
 let colors: string[] = [];
 
 export async function loadExternalData(): Promise<void> {
   const cfg = getConfig();
-  const url = cfg.badge_data_url ?? (getAssetsPath() + 'data/badge_data.xml');
-
-  const resp = await fetch(url);
-  const text = await resp.text();
+  const text = await loadRuntimeTextAsset(cfg.badge_data_url ?? 'data/badge_data.xml');
   const parser = new DOMParser();
   const doc = parser.parseFromString(text, 'text/xml');
   const cNodes = doc.querySelectorAll('badge > c');

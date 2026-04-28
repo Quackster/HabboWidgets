@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Habbo Badge Editor</title>
+  <title>Habbo Badge Editor Demo</title>
   <style>
     body {
       margin: 0;
@@ -26,16 +26,15 @@
   <div id="editor-container"></div>
 
   <script>
-    // Development page. The production deployable demo is emitted to dist/demo/ on build.
     window.HabboBadgeEditorConfig = {
-      badge_data: '',              // Pre-existing badge code to edit
-      assetsPath: '',              // '' keeps data/ and sprites/ relative to this HTML page
-      // assetBundlePath: 'assets.zip', // Optional bundle file resolved through assetsPath
-      // assetsPath: './cdn/badge-editor', // Example: data/* and sprites/* live under this folder
-      badge_data_url: 'data/badge_data.xml',     // Relative paths resolve through assetsPath
-      localization_url: 'data/badge_editor.xml', // Absolute URLs still bypass assetsPath
+      badge_data: '',
+      assetsPath: '',
+      assetBundlePath: 'assets.zip',
+      badge_data_url: 'data/badge_data.xml',
+      localization_url: 'data/badge_editor.xml',
       groupId: '0',
     };
+
     window.HabboBadgeEditor = {
       onSave: function(code, groupId) {
         console.log('Badge saved:', code, 'Group:', groupId);
@@ -45,6 +44,6 @@
       },
     };
   </script>
-  <script type="module" src="./src/index.ts"></script>
+  <script src="./badge-editor.js"></script>
 </body>
 </html>

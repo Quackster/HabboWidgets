@@ -1,5 +1,5 @@
 import { SYMBOL_COUNT, BASE_COUNT } from '../config';
-import { getAssetsPath } from '../api/Bridge';
+import { resolveRuntimeImageSource } from '../runtime/RuntimeAssetLoader';
 
 export interface SpriteBounds {
   xMin: number;
@@ -36,7 +36,9 @@ const UI_SPRITE_NAMES = [
   'position_slot',       // 381: 16x16 individual position slot
 ];
 
-function loadImage(src: string): Promise<HTMLImageElement> {
+async function loadImage(assetPath: string): Promise<HTMLImageElement> {
+  const src = await resolveRuntimeImageSource(assetPath);
+
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => resolve(img);
@@ -68,14 +70,13 @@ function computeVisualBounds(img: HTMLImageElement): SpriteBounds {
 }
 
 export async function preloadSprites(): Promise<void> {
-  const assetsPath = getAssetsPath();
   const promises: Promise<void>[] = [];
 
   // Symbol sprites (1-67)
   for (let i = 1; i <= SYMBOL_COUNT; i++) {
     const idx = i;
     promises.push(
-      loadImage(`${assetsPath}sprites/symbols/${idx}.png`).then((img) => {
+      loadImage(`sprites/symbols/${idx}.png`).then((img) => {
         symbols[idx] = img;
       })
     );
@@ -85,7 +86,7 @@ export async function preloadSprites(): Promise<void> {
   for (let i = 1; i <= BASE_COUNT; i++) {
     const idx = i;
     promises.push(
-      loadImage(`${assetsPath}sprites/bases/${idx}.png`).then((img) => {
+      loadImage(`sprites/bases/${idx}.png`).then((img) => {
         bases[idx] = img;
       })
     );
@@ -94,7 +95,7 @@ export async function preloadSprites(): Promise<void> {
   // UI sprites
   for (const name of UI_SPRITE_NAMES) {
     promises.push(
-      loadImage(`${assetsPath}sprites/ui/${name}.png`).then((img) => {
+      loadImage(`sprites/ui/${name}.png`).then((img) => {
         uiSprites.set(name, img);
       })
     );

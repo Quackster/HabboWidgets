@@ -1,5 +1,6 @@
 import { loadExternalData } from './data/ExternalData';
 import { loadLocalization, getText } from './data/Localization';
+import { prepareRuntimeAssets } from './runtime/RuntimeAssetLoader';
 import { preloadSprites, getUI } from './rendering/SpriteLoader';
 import { renderBadgePreview } from './rendering/BadgeRenderer';
 import { BadgeModel } from './model/BadgeModel';
@@ -58,6 +59,8 @@ async function init(): Promise<void> {
     console.error('Badge editor: #editor-container not found');
     return;
   }
+
+  await prepareRuntimeAssets();
 
   // Load data in parallel
   await Promise.all([loadExternalData(), loadLocalization(), preloadSprites()]);

@@ -1,12 +1,17 @@
+import { resolveAssetPath } from '../utils/assetPaths';
+
+export interface HabboBadgeEditorConfig {
+  badge_data?: string;
+  assetsPath?: string;
+  assetBundlePath?: string;
+  badge_data_url?: string;
+  localization_url?: string;
+  groupId?: string;
+}
+
 declare global {
   interface Window {
-    HabboBadgeEditorConfig?: {
-      badge_data?: string;
-      assetsPath?: string;
-      badge_data_url?: string;
-      localization_url?: string;
-      groupId?: string;
-    };
+    HabboBadgeEditorConfig?: HabboBadgeEditorConfig;
     HabboBadgeEditor?: {
       onSave?: (code: string, groupId: string) => void;
       onCancel?: () => void;
@@ -14,14 +19,12 @@ declare global {
   }
 }
 
-export function getConfig() {
+export function getConfig(): HabboBadgeEditorConfig {
   return window.HabboBadgeEditorConfig ?? {};
 }
 
-export function getAssetsPath(): string {
-  const cfg = getConfig();
-  const base = cfg.assetsPath ?? '';
-  return base.endsWith('/') ? base : base ? base + '/' : '';
+export function resolveConfigAssetPath(assetPath: string): string {
+  return resolveAssetPath(getConfig().assetsPath, assetPath);
 }
 
 export function fireSave(code: string): void {

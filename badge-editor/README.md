@@ -19,7 +19,11 @@ npm install
 npm run build
 ```
 
-This runs the TypeScript compiler followed by a Vite IIFE build. Output goes to `badge-editor/dist/badge-editor.js`.
+This runs the TypeScript compiler, the Vite IIFE build, and a packaging step that creates:
+
+- `badge-editor/dist/badge-editor.js`
+- `badge-editor/dist/assets.zip`
+- `badge-editor/dist/demo/` - self-contained production demo package
 
 For local development with hot reload:
 
@@ -32,7 +36,7 @@ Then open the URL Vite prints (usually `http://localhost:3000`).
 
 ## Assets
 
-The build copies `badge-editor/assets/` into `dist/`. This folder contains:
+The build copies `badge-editor/assets/` into `dist/` and also zips the same runtime files into `dist/assets.zip`. The asset set contains:
 
 - `data/badge_data.xml` - 18 colour definitions used by the editor
 - `data/badge_editor.xml` - localisation strings (headers, labels, button text)
@@ -40,7 +44,7 @@ The build copies `badge-editor/assets/` into `dist/`. This folder contains:
 - `sprites/bases/` - 24 base PNGs (1-24)
 - `sprites/ui/` - UI element PNGs (arrows, buttons, grids, colour cells)
 
-These must be served from the same path as the JS file (or set `assetsPath` in the config).
+These can be served unpacked relative to the hosting HTML page, or through a shared runtime base path set with `assetsPath`. If `assetBundlePath` is set, the editor will try the zip bundle first and fall back to the unpacked files if needed.
 
 ## Usage
 
@@ -71,6 +75,7 @@ The first script defines `window.HabboBadgeEditor`, which is the callback interf
   window.HabboBadgeEditorConfig = {
     badge_data: '',
     assetsPath: '',
+    assetBundlePath: '',
     badge_data_url: 'data/badge_data.xml',
     localization_url: 'data/badge_editor.xml',
     groupId: '0',
@@ -87,10 +92,47 @@ The editor attaches itself to the `#editor-container` div automatically.
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `badge_data` | string | `''` | Pre-existing badge code to load for editing. If empty, a default badge is used. |
-| `assetsPath` | string | `''` | Base path for the `data/` and `sprites/` asset folders. Relative to the page. |
-| `badge_data_url` | string | `'data/badge_data.xml'` | URL to the badge colour data XML file. |
-| `localization_url` | string | `'data/badge_editor.xml'` | URL to the localisation strings XML file. |
+| `assetsPath` | string | `''` | Shared base path for downloaded runtime assets. `''` keeps `data/` and `sprites/` relative to the hosting HTML page instead of `/`. |
+| `assetBundlePath` | string | `''` | Optional zip bundle path or URL. Relative values resolve through `assetsPath`; absolute URLs are used as-is. |
+| `badge_data_url` | string | `'data/badge_data.xml'` | Badge colour data path or URL. Relative values resolve through `assetsPath`; absolute URLs are used as-is. |
+| `localization_url` | string | `'data/badge_editor.xml'` | Localisation data path or URL. Relative values resolve through `assetsPath`; absolute URLs are used as-is. |
 | `groupId` | string | `'0'` | Group ID passed back to the `onSave` callback. |
+
+### Shared asset base path
+
+Set `assetsPath` once from the page when the editor assets live under a shared folder or CDN prefix:
+
+```html
+<script>
+  window.HabboBadgeEditorConfig = {
+    assetsPath: './badge-editor-runtime',
+    assetBundlePath: 'assets.zip',
+    badge_data_url: 'data/badge_data.xml',
+    localization_url: 'data/badge_editor.xml',
+  };
+</script>
+```
+
+With that config, the editor loads:
+
+- `./badge-editor-runtime/assets.zip`
+- `./badge-editor-runtime/data/badge_data.xml`
+- `./badge-editor-runtime/data/badge_editor.xml`
+- `./badge-editor-runtime/sprites/...`
+
+Leave `assetsPath` as `''` to keep those paths relative to the HTML page. Leave `assetBundlePath` empty to skip zip loading entirely.
+
+### Production demo output
+
+`npm run build` now emits a deployable demo package in `badge-editor/dist/demo/` containing:
+
+- `index.html`
+- `badge-editor.js`
+- `assets.zip`
+- `data/`
+- `sprites/`
+
+The demo page uses `assetBundlePath: 'assets.zip'` and falls back to the local unpacked `data/` and `sprites/` folders if the bundle is unavailable.
 
 ### Reading the result
 
@@ -134,12 +176,18 @@ badge-editor/
       SpriteLoader.ts     - PNG sprite preloading and caching
       BadgeRenderer.ts    - Badge preview composition
       ColorTint.ts        - Pixel-level colour tinting
+    runtime/
+      RuntimeAssetLoader.ts - Raw asset and assets.zip runtime loading/fallback
     ui/
       CanvasManager.ts    - Canvas setup, hit regions, input handling
       LayerPanel.ts       - Symbol/base selection with arrows and toggle
       ColorPalette.ts     - 18-colour palette in a 2x9 grid
       PositionGrid.ts     - 3x3 position selector for symbol layers
       ButtonBar.ts        - Save and Cancel buttons
+  demo/
+    index.html            - Production demo template copied into dist/demo/
+  scripts/
+    postbuild.mjs         - Creates assets.zip and the dist/demo/ package
   assets/                 - Runtime assets (copied to dist on build)
   dist/                   - Build output
 ```

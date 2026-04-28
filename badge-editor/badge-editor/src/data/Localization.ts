@@ -1,13 +1,11 @@
-import { getAssetsPath, getConfig } from '../api/Bridge';
+import { getConfig } from '../api/Bridge';
+import { loadRuntimeTextAsset } from '../runtime/RuntimeAssetLoader';
 
 const strings: Map<string, string> = new Map();
 
 export async function loadLocalization(): Promise<void> {
   const cfg = getConfig();
-  const url = cfg.localization_url ?? (getAssetsPath() + 'data/badge_editor.xml');
-
-  const resp = await fetch(url);
-  const text = await resp.text();
+  const text = await loadRuntimeTextAsset(cfg.localization_url ?? 'data/badge_editor.xml');
   const parser = new DOMParser();
   const doc = parser.parseFromString(text, 'text/xml');
   const keys = doc.querySelectorAll('keys > key');
