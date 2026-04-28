@@ -5,6 +5,7 @@ export interface EditorConfig {
   showClubSelections: boolean;
   showRotationArrows: boolean;
   assetsPath: string;
+  assetBundlePath: string;
   menuState?: string;
   localization: LocalizationConfig;
 }
@@ -22,6 +23,7 @@ export const DEFAULT_CONFIG: EditorConfig = {
   showClubSelections: true,
   showRotationArrows: false,
   assetsPath: '',
+  assetBundlePath: 'assets.zip',
   localization: {
     randomize: 'Randomize',
     boy: 'Boy',

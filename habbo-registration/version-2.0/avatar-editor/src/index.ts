@@ -1,4 +1,5 @@
 import { EditorConfig, DEFAULT_CONFIG, DEFAULT_SET_TYPE, MAIN_MENU_STRUCT, CANVAS_WIDTH_WITH_ARROWS, CANVAS_WIDTH_NO_ARROWS, CANVAS_HEIGHT, AVATAR_DISPLAY_X_ARROWS, AVATAR_DISPLAY_X_NO_ARROWS } from './config';
+import { AssetBundle } from './assets/AssetBundle';
 import { FigureData } from './data/FigureData';
 import { DrawOrder } from './data/DrawOrder';
 import { SymbolMap } from './data/SymbolMap';
@@ -48,6 +49,52 @@ export class HabboAvatarEditor {
     this.init();
   }
 
+  private resolveAssetPath(basePath: string, assetPath: string): string {
+    if (!assetPath) return '';
+    if (/^(?:[a-z]+:)?\/\//i.test(assetPath) || assetPath.startsWith('/') || assetPath.startsWith('data:')) {
+      return assetPath;
+    }
+    if (!basePath) return assetPath;
+
+    const normalizedBase = basePath.endsWith('/') ? basePath : `${basePath}/`;
+    return `${normalizedBase}${assetPath}`;
+  }
+
+  private async tryLoadAssetBundle(assetsPath: string): Promise<AssetBundle | null> {
+    const bundlePath = this.resolveAssetPath(assetsPath, this.config.assetBundlePath);
+    if (!bundlePath) {
+      return null;
+    }
+
+    try {
+      const bundle = await AssetBundle.loadFromUrl(bundlePath);
+      console.log(`[HabboEditor] Asset bundle loaded from ${bundlePath} (${bundle.fileCount()} files)`);
+      return bundle;
+    } catch (error) {
+      console.warn(`[HabboEditor] Asset bundle unavailable, falling back to raw assets: ${bundlePath}`, error);
+      return null;
+    }
+  }
+
+  private async loadDataFiles(assetsPath: string, assetBundle: AssetBundle | null): Promise<void> {
+    if (assetBundle) {
+      FigureData.getInstance().loadFromText(assetBundle.getText('data/figuredata.xml'));
+      DrawOrder.getInstance().loadFromText(assetBundle.getText('data/draworder.xml'));
+      SymbolMap.getInstance().loadFromText(assetBundle.getText('data/symbols.csv'));
+      SymbolMap.getInstance().loadOffsetsFromText(assetBundle.getText('data/spriteoffsets.csv'));
+      return;
+    }
+
+    const dataPath = this.resolveAssetPath(assetsPath, 'data/');
+
+    await Promise.all([
+      FigureData.getInstance().loadFromUrl(dataPath + 'figuredata.xml'),
+      DrawOrder.getInstance().loadFromUrl(dataPath + 'draworder.xml'),
+      SymbolMap.getInstance().loadFromUrl(dataPath + 'symbols.csv'),
+      SymbolMap.getInstance().loadOffsetsFromUrl(dataPath + 'spriteoffsets.csv'),
+    ]);
+  }
+
   private async init(): Promise<void> {
     const assetsPath = this.config.assetsPath;
 
@@ -66,17 +113,14 @@ export class HabboAvatarEditor {
     const MIN_LOADING_MS = 3000;
     const loadingStart = Date.now();
 
-    // Phase 1: Load data files
-    const dataPath = assetsPath + (assetsPath.endsWith('/') ? '' : '/') + 'data/';
+    // Phase 1: Load bundled assets if available
+    const assetBundle = await this.tryLoadAssetBundle(assetsPath);
+    this.spriteLoader.setAssetBundle(assetBundle);
 
-    await Promise.all([
-      FigureData.getInstance().loadFromUrl(dataPath + 'figuredata.xml'),
-      DrawOrder.getInstance().loadFromUrl(dataPath + 'draworder.xml'),
-      SymbolMap.getInstance().loadFromUrl(dataPath + 'symbols.csv'),
-      SymbolMap.getInstance().loadOffsetsFromUrl(dataPath + 'spriteoffsets.csv'),
-    ]);
+    // Phase 2: Load data files
+    await this.loadDataFiles(assetsPath, assetBundle);
 
-    // Phase 2: Load sprites
+    // Phase 3: Load sprites
     const symbolMap = SymbolMap.getInstance();
     const spriteFilenames = symbolMap.getAllNames().map(name => {
       const filename = symbolMap.getFilenameForName(name);
@@ -86,7 +130,7 @@ export class HabboAvatarEditor {
     await this.spriteLoader.preloadAllSprites(spriteFilenames);
     console.log(`[HabboEditor] Loaded ${spriteFilenames.length} avatar sprites`);
 
-    // Phase 3: Load UI assets
+    // Phase 4: Load UI assets
     this.uiAssets = new UIAssets(this.spriteLoader);
     await this.uiAssets.loadAll();
 
@@ -102,18 +146,18 @@ export class HabboAvatarEditor {
     stopLoadingAnimation();
     this.container.removeChild(loadingCanvas);
 
-    // Phase 4: Initialize figure
+    // Phase 5: Initialize figure
     this.initFigure();
     console.log(`[HabboEditor] Figure: ${this.state.figure.getFigureString()} gender=${this.state.figure.getGender()}`);
 
-    // Phase 5: Create UI
+    // Phase 6: Create UI
     this.createUI();
 
-    // Phase 6: Start rendering
+    // Phase 7: Start rendering
     this.canvasManager.setDrawCallback(() => this.drawAll());
     this.canvasManager.requestRedraw();
 
-    // Phase 7: Initial bridge calls
+    // Phase 8: Initial bridge calls
     this.bridge.setGenderAndFigure(
       this.state.figure.getGender(),
       this.state.figure.getFigureString()
@@ -124,7 +168,7 @@ export class HabboAvatarEditor {
       this.bridge.setAllowedToProceed(false); // Init block active
     }
 
-    // Phase 8: Restore menu state if provided
+    // Phase 9: Restore menu state if provided
     if (this.config.menuState) {
       this.updatePartAndColorMenu(this.config.menuState);
     }

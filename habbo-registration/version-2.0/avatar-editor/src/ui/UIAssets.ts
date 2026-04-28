@@ -76,13 +76,13 @@ export class UIAssets {
     this.spriteLoader = spriteLoader;
   }
 
-  async loadAll(): Promise<void> {
+  async loadAll(onProgress?: (loaded: number, total: number) => void): Promise<void> {
     const filenames = Object.values(UI_ASSET_MAP).map(id => `${id}.png`);
     // Add cloud frame filenames
     for (let i = 0; i < CLOUD_FRAME_COUNT; i++) {
       filenames.push(`cloud/cloud_${i}.png`);
     }
-    await this.spriteLoader.preloadUIAssets(filenames);
+    await this.spriteLoader.preloadUIAssets(filenames, onProgress);
 
     // Cache cloud frame references in order
     this.cloudFrames = [];

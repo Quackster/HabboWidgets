@@ -5,10 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
+    "build": "node scripts/prepare-build.mjs && tsc --noEmit && vite build && node scripts/build-asset-bundle.mjs",
+    "preview": "vite preview",
+    "serve": "serve demo -l 4173"
+  },
+  "dependencies": {
+    "fflate": "^0.8.2"
   },
   "devDependencies": {
+    "serve": "^14.2.5",
     "typescript": "^6.0.0-beta",
     "vite": "^7.3.1"
   }

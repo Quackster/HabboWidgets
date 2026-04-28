@@ -1,10 +1,17 @@
+import type { AssetBundle } from '../assets/AssetBundle';
+
 export class SpriteLoader {
   private spriteCache: Map<string, HTMLImageElement> = new Map();
   private uiCache: Map<string, HTMLImageElement> = new Map();
   private assetsPath: string;
+  private assetBundle: AssetBundle | null = null;
 
   constructor(assetsPath: string) {
     this.assetsPath = assetsPath.endsWith('/') ? assetsPath : assetsPath + '/';
+  }
+
+  setAssetBundle(assetBundle: AssetBundle | null): void {
+    this.assetBundle = assetBundle;
   }
 
   private loadImage(src: string): Promise<HTMLImageElement> {
@@ -16,11 +23,19 @@ export class SpriteLoader {
     });
   }
 
+  private async loadAssetImage(assetPath: string): Promise<HTMLImageElement> {
+    if (this.assetBundle) {
+      return this.assetBundle.loadImage(assetPath);
+    }
+
+    return this.loadImage(`${this.assetsPath}${assetPath}`);
+  }
+
   async loadSprite(filename: string): Promise<HTMLImageElement> {
     if (this.spriteCache.has(filename)) {
       return this.spriteCache.get(filename)!;
     }
-    const img = await this.loadImage(`${this.assetsPath}sprites/${filename}`);
+    const img = await this.loadAssetImage(`sprites/${filename}`);
     this.spriteCache.set(filename, img);
     return img;
   }
@@ -29,7 +44,7 @@ export class SpriteLoader {
     if (this.uiCache.has(filename)) {
       return this.uiCache.get(filename)!;
     }
-    const img = await this.loadImage(`${this.assetsPath}ui/${filename}`);
+    const img = await this.loadAssetImage(`ui/${filename}`);
     this.uiCache.set(filename, img);
     return img;
   }

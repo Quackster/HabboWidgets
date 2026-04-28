@@ -23,6 +23,10 @@ export class SymbolMap {
       return;
     }
     const text = await response.text();
+    this.loadFromText(text);
+  }
+
+  loadFromText(text: string): void {
     this.parseCsv(text);
     console.log(`[SymbolMap] Loaded ${this.nameToFileId.size} symbol entries`);
   }
@@ -34,6 +38,10 @@ export class SymbolMap {
       return;
     }
     const text = await response.text();
+    this.loadOffsetsFromText(text);
+  }
+
+  loadOffsetsFromText(text: string): void {
     this.parseOffsets(text);
     console.log(`[SymbolMap] Loaded ${this.imageOffsets.size} sprite offsets`);
   }

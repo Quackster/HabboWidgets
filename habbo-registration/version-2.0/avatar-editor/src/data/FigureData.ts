@@ -24,6 +24,10 @@ export class FigureData {
       return;
     }
     const text = await response.text();
+    this.loadFromText(text);
+  }
+
+  loadFromText(text: string): void {
     const parser = new DOMParser();
     const xml = parser.parseFromString(text, 'text/xml');
     this.parseXml(xml);

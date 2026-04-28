@@ -3,6 +3,7 @@ node_modules/
 
 # Build output
 dist/
+habbo-registration/version-2.0/avatar-editor/demo/
 *.tsbuildinfo
 
 # Vite

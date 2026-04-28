@@ -20,7 +20,19 @@ npm install
 npm run build
 ```
 
-This runs the TypeScript compiler followed by a Vite IIFE build. Output goes to `avatar-editor/dist/habbo-editor.iife.js` (roughly 42KB).
+This runs the TypeScript compiler followed by a Vite IIFE build. Output goes to `avatar-editor/dist/habbo-editor.iife.js`.
+
+The build also creates:
+
+- `avatar-editor/dist/assets.zip` - bundled runtime data, sprites, and UI assets
+- `avatar-editor/demo/` - self-contained static demo (`index.html`, `habbo-editor.iife.js`, `assets.zip`, `frames/`)
+
+To serve the built demo locally:
+
+```
+cd avatar-editor
+npm run serve
+```
 
 For local development with hot reload:
 
@@ -33,7 +45,7 @@ Then open the URL Vite prints (usually `http://localhost:5173`).
 
 ## Assets
 
-The build copies `avatar-editor/assets/` into `dist/`. This folder contains:
+Source assets live in `avatar-editor/assets/`. The build compresses the runtime data, sprite, and UI files into `dist/assets.zip`, containing:
 
 - `data/figuredata.xml` - part/set/colour definitions (originally from Habbo)
 - `data/draworder.xml` - layer draw ordering per direction
@@ -41,8 +53,9 @@ The build copies `avatar-editor/assets/` into `dist/`. This folder contains:
 - `data/spriteoffsets.csv` - sprite x/y offsets extracted from the decompiled SWF
 - `sprites/` - individual avatar part PNGs
 - `ui/` - UI element PNGs (tabs, buttons, borders, icons)
+The original `frames/` loading animation stays as regular static files so the existing loading screen can start immediately while the editor downloads and extracts `assets.zip`.
 
-These must be served from the same path as the JS file (or set `assetsPath` in the config).
+At runtime the editor prefers `assets.zip`, extracts it in-browser, and keeps the original frame-based loading animation active until extraction and asset preloading finish. During local Vite dev it can still fall back to raw asset files.
 
 ## Usage
 
@@ -89,6 +102,7 @@ The first script defines `window.HabboEditor`, which is the callback interface t
     userHasClub: false,
     showClubSelections: true,
     assetsPath: '',
+    assetBundlePath: 'assets.zip',
   };
 </script>
 
@@ -106,6 +120,7 @@ The editor attaches itself to the `#editor-container` div automatically.
 | `userHasClub` | boolean | `false` | Whether the user has a Habbo Club membership. When false, selecting HC items triggers `showHabboClubNotice`. |
 | `showClubSelections` | boolean | `true` | Whether HC items appear in the menus at all. Set to false to hide them entirely. |
 | `assetsPath` | string | `''` | Base path for the `data/`, `sprites/`, and `ui/` asset folders. Relative to the page. |
+| `assetBundlePath` | string | `'assets.zip'` | Zip bundle to fetch before startup. Relative to `assetsPath` unless absolute. If unavailable, the editor falls back to raw asset files. |
 | `menuState` | string | (none) | Serialised menu state to restore (as previously returned by `setEditorState`). |
 | `localization` | object | (see below) | UI text strings. |
 
@@ -164,8 +179,9 @@ avatar-editor/
       RandomizeButton.ts  - Randomise button with cloud animation
       UIAssets.ts         - UI image loading from decompiled SWF assets
       HitRegion.ts        - Click/hover region management
-  assets/                 - Runtime assets (copied to dist on build)
-  dist/                   - Build output
+  assets/                 - Source runtime assets used for dev and bundle generation
+  dist/                   - Library build output (`habbo-editor.iife.js`, `assets.zip`, `frames/`)
+  demo/                   - Self-contained static demo output for `npm run serve`
 ```
 
 ## Origin
