@@ -21,6 +21,12 @@ export interface ActivePlayback {
   timer: number;
 }
 
+export interface RenderedPcm {
+  left: Float32Array;
+  right: Float32Array;
+  sampleRate: number;
+}
+
 export class TraxSong implements TraxSongModel {
   readonly name: string;
   readonly author: string;
@@ -57,6 +63,32 @@ export class TraxSong implements TraxSongModel {
 
     const timer = window.setTimeout(onEnded, Math.ceil(this.lengthSeconds * 1000) + 120);
     return { startAt, sources, timer };
+  }
+
+  renderToPcm(): RenderedPcm {
+    const sampleRate = this.getExportSampleRate();
+    const frameCount = Math.max(1, Math.ceil(this.lengthSeconds * sampleRate));
+    const left = new Float32Array(frameCount);
+    const right = new Float32Array(frameCount);
+
+    this.tracks.forEach((track) => {
+      track.samples.forEach((sample) => {
+        mixSample(left, right, sample, sampleRate);
+      });
+    });
+
+    return { left, right, sampleRate };
+  }
+
+  private getExportSampleRate(): number {
+    for (const track of this.tracks) {
+      const firstSample = track.samples[0];
+      if (firstSample) {
+        return firstSample.buffer.sampleRate;
+      }
+    }
+
+    return 44100;
   }
 }
 
@@ -172,4 +204,29 @@ function durationToBeats(durationSeconds: number): number {
     return 3;
   }
   return 4;
+}
+
+function mixSample(
+  left: Float32Array,
+  right: Float32Array,
+  sample: ScheduledSample,
+  outputSampleRate: number
+): void {
+  const buffer = sample.buffer;
+  const startFrame = Math.round(sample.beat * BEAT_SECONDS * outputSampleRate);
+  const leftSource = buffer.getChannelData(0);
+  const rightSource = buffer.numberOfChannels > 1 ? buffer.getChannelData(1) : leftSource;
+  const rateRatio = buffer.sampleRate / outputSampleRate;
+  const outputFrames = Math.ceil(buffer.length / rateRatio);
+
+  for (let i = 0; i < outputFrames; i += 1) {
+    const outputIndex = startFrame + i;
+    if (outputIndex >= left.length) {
+      break;
+    }
+
+    const sourceIndex = Math.min(buffer.length - 1, Math.floor(i * rateRatio));
+    left[outputIndex] += leftSource[sourceIndex];
+    right[outputIndex] += rightSource[sourceIndex];
+  }
 }

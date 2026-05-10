@@ -112,4 +112,21 @@ player.play();
 player.stop();
 player.setVolume(50);
 player.load('demo/song.txt', 'http://localhost/dcr/hof_furni/mp3/');
+player.exportMp3();
+```
+
+## Export MP3
+
+After a song has loaded, right-click the widget and choose:
+
+```text
+Export Trax song as MP3
+```
+
+The exporter renders the currently loaded Trax song from its decoded sample buffers, encodes it as a `128 kbps` MP3, and downloads it using the song name as the filename.
+
+You can also call the same export from JavaScript:
+
+```js
+await player.exportMp3();
 ```

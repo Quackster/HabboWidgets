@@ -46,6 +46,10 @@ export class Player implements TraxAudioPlayer {
     return this.song;
   }
 
+  getLoadedSong(): TraxSong | null {
+    return this.song;
+  }
+
   async startPlaying(): Promise<void> {
     if (!this.song || !this.gainNode) {
       return;

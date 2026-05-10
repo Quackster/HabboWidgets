@@ -8,6 +8,7 @@ interface TraxPlayerUiOptions {
   assetsPath: string;
   songUrl: string;
   sampleUrl: string;
+  onExportRequested(): void;
   onLoadRequested(songUrl: string, sampleUrl: string): void;
 }
 
@@ -22,6 +23,8 @@ export class TraxPlayerUi implements PlayerListener {
   private volumeControl!: HTMLElement;
   private volumeMask!: HTMLElement;
   private volumeKnob!: HTMLImageElement;
+  private contextMenu!: HTMLElement;
+  private exportButton!: HTMLButtonElement;
   private status!: HTMLElement;
   private ledTimer = 0;
   private ledFrame = 0;
@@ -131,6 +134,9 @@ export class TraxPlayerUi implements PlayerListener {
             <img class="trax-volume-knob" data-role="volume-knob" src="${this.asset('flash/sprites/DefineSprite_61/1.png')}" alt="">
           </div>
         </div>
+        <div class="trax-context-menu" data-role="context-menu" hidden>
+          <button data-role="export-button" type="button">Export Trax song as MP3</button>
+        </div>
         <p class="trax-status" data-role="status" role="status"></p>
       </section>
     `;
@@ -144,6 +150,8 @@ export class TraxPlayerUi implements PlayerListener {
     this.volumeControl = getRole(wrapper, 'volume-control');
     this.volumeMask = getRole(wrapper, 'volume-mask');
     this.volumeKnob = getRole(wrapper, 'volume-knob') as HTMLImageElement;
+    this.contextMenu = getRole(wrapper, 'context-menu');
+    this.exportButton = getRole(wrapper, 'export-button') as HTMLButtonElement;
     this.status = getRole(wrapper, 'status');
     return wrapper;
   }
@@ -159,6 +167,31 @@ export class TraxPlayerUi implements PlayerListener {
     });
     this.volumeControl.addEventListener('pointerdown', (event) => this.beginVolumeDrag(event));
     this.volumeControl.addEventListener('keydown', (event) => this.onVolumeKeyDown(event));
+    this.root.addEventListener('contextmenu', (event) => this.openContextMenu(event));
+    this.exportButton.addEventListener('click', () => {
+      this.closeContextMenu();
+      this.options.onExportRequested();
+    });
+    document.addEventListener('pointerdown', (event) => {
+      if (!this.contextMenu.hidden && !this.contextMenu.contains(event.target as Node)) {
+        this.closeContextMenu();
+      }
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        this.closeContextMenu();
+      }
+    });
+  }
+
+  setExporting(isExporting: boolean): void {
+    this.exportButton.disabled = isExporting;
+    this.exportButton.textContent = isExporting ? 'Exporting...' : 'Export Trax song as MP3';
+    this.setStatus(isExporting ? 'Exporting MP3...' : this.status.textContent || '');
+  }
+
+  setStatus(message: string): void {
+    this.status.textContent = message;
   }
 
   private beginVolumeDrag(event: PointerEvent): void {
@@ -230,10 +263,6 @@ export class TraxPlayerUi implements PlayerListener {
     this.volumeControl.setAttribute('aria-disabled', String(!isReady));
   }
 
-  private setStatus(message: string): void {
-    this.status.textContent = message;
-  }
-
   private startLed(): void {
     this.stopLed();
     this.ledFrame = 0;
@@ -251,6 +280,20 @@ export class TraxPlayerUi implements PlayerListener {
 
   private asset(path: string): string {
     return resolveAssetPath(this.options.assetsPath, path);
+  }
+
+  private openContextMenu(event: MouseEvent): void {
+    event.preventDefault();
+
+    const rect = this.root.getBoundingClientRect();
+    this.contextMenu.style.left = `${event.clientX - rect.left}px`;
+    this.contextMenu.style.top = `${event.clientY - rect.top}px`;
+    this.contextMenu.hidden = false;
+    this.exportButton.focus();
+  }
+
+  private closeContextMenu(): void {
+    this.contextMenu.hidden = true;
   }
 }
 

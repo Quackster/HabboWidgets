@@ -22,6 +22,7 @@ body {
 }
 
 .trax-widget {
+  position: relative;
   color: #111;
   width: 209px;
 }
@@ -192,4 +193,37 @@ body {
 
 .trax-player-shell.has-error .trax-song-title {
   color: #b00020;
+}
+
+.trax-context-menu {
+  position: absolute;
+  z-index: 10;
+  min-width: 142px;
+  padding: 2px;
+  background: #f1f1f1;
+  border: 1px solid #555;
+  box-shadow: 2px 2px 0 rgb(0 0 0 / 35%);
+}
+
+.trax-context-menu[hidden] {
+  display: none;
+}
+
+.trax-context-menu button {
+  width: 100%;
+  border: 0;
+  padding: 4px 8px;
+  background: transparent;
+  color: #111;
+  font: 11px Verdana, Arial, sans-serif;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.trax-context-menu button:hover,
+.trax-context-menu button:focus {
+  background: #316ac5;
+  color: #fff;
+  outline: none;
 }
