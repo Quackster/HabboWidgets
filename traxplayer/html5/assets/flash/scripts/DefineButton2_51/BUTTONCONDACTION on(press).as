@@ -1,0 +1,9 @@
+on(press){
+   _root.globalSound.setVolume(_root.volume);
+   _root.player.startPlaying();
+   with(this._parent.led_anim)
+   {
+      gotoAndPlay(2);
+   }
+   gotoAndStop(2);
+}

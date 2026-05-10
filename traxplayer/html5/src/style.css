@@ -1,0 +1,195 @@
+body {
+  margin: 0;
+  background: #333;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Verdana, Arial, sans-serif;
+}
+
+#trax-player-container {
+  width: 209px;
+  height: 66px;
+}
+
+.trax-page {
+  width: 209px;
+  display: flex;
+  justify-content: center;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.trax-widget {
+  color: #111;
+  width: 209px;
+}
+
+.trax-player-shell {
+  position: relative;
+  width: 209px;
+  height: 66px;
+  image-rendering: pixelated;
+  overflow: hidden;
+  user-select: none;
+}
+
+.trax-top-panel {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 209px;
+  height: 35px;
+}
+
+.trax-loading-card {
+  position: absolute;
+  left: 73px;
+  top: 8px;
+  width: 62px;
+  height: 17px;
+  opacity: 1;
+  transition: opacity 120ms linear;
+  pointer-events: none;
+}
+
+.trax-player-shell.is-loaded .trax-loading-card {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.trax-song-meta {
+  position: absolute;
+  left: 7px;
+  top: 4px;
+  width: 116px;
+  height: 25px;
+  overflow: hidden;
+  font-size: 9px;
+  line-height: 10px;
+  opacity: 0;
+}
+
+.trax-song-title {
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trax-song-author {
+  color: #333;
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trax-time-row {
+  position: absolute;
+  left: 122px;
+  top: 16px;
+  width: 84px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  line-height: 10px;
+  opacity: 0;
+}
+
+.trax-player-shell.is-loaded .trax-song-meta,
+.trax-player-shell.is-loaded .trax-time-row {
+  opacity: 1;
+}
+
+.trax-volume-icon {
+  position: absolute;
+  left: 74px;
+  top: 36px;
+  width: 62px;
+  height: 20px;
+  pointer-events: none;
+}
+
+.trax-volume-icon-base,
+.trax-volume-icon-lit {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 62px;
+  height: 9px;
+}
+
+.trax-volume-icon-mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 32px;
+  height: 9px;
+  overflow: hidden;
+}
+
+.trax-led {
+  position: absolute;
+  left: 159px;
+  top: 41px;
+  width: 50px;
+  height: 25px;
+  pointer-events: none;
+}
+
+.trax-transport {
+  position: absolute;
+  left: 0;
+  top: 40px;
+  width: 25px;
+  height: 25px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  background-repeat: no-repeat;
+  background-size: 25px 25px;
+  cursor: pointer;
+}
+
+.trax-transport:disabled {
+  cursor: default;
+}
+
+.trax-volume-control {
+  position: absolute;
+  left: 74px;
+  top: 54px;
+  width: 62px;
+  height: 12px;
+  cursor: pointer;
+}
+
+.trax-volume-line {
+  position: absolute;
+  left: 0;
+  top: 2px;
+  width: 62px;
+  height: 8px;
+}
+
+.trax-volume-knob {
+  position: absolute;
+  top: 0;
+  width: 8px;
+  height: 12px;
+}
+
+.trax-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.trax-player-shell.has-error .trax-song-title {
+  color: #b00020;
+}

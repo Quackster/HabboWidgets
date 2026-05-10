@@ -1,0 +1,17 @@
+{
+  "name": "habbo-trax-player",
+  "version": "1.0.0",
+  "description": "Habbo Trax Player - TypeScript + HTML5 port of the extracted AS3 widget",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "node scripts/prepare-build.mjs && tsc --noEmit && vite build && node scripts/build-demo.mjs",
+    "preview": "vite preview",
+    "serve": "serve demo -l 4173"
+  },
+  "devDependencies": {
+    "serve": "^14.2.5",
+    "typescript": "^6.0.0-beta",
+    "vite": "^7.3.1"
+  }
+}
