@@ -34,7 +34,7 @@ export class TraxPlayerUi implements PlayerListener {
   private isPlaying = false;
 
   constructor(private options: TraxPlayerUiOptions) {
-    this.ledFrames = Array.from({ length: 53 }, (_item, index) =>
+    this.ledFrames = Array(53).fill(0).map((_item, index) =>
       this.asset(`flash/sprites/DefineSprite_48/${index + 1}.png`)
     );
     this.playImage = this.asset('flash/buttons/DefineButton2_51/1.png');
