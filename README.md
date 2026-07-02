@@ -16,6 +16,10 @@ Port of the later `HabboRegistration.swf` (v0.916). Uses the dot-delimited figur
 
 Port of the Flash-based `BadgeEditor.swf`. Lets users compose a group badge from layered symbols, bases, colours, and positions. See the [badge editor README](badge-editor/README.md) for build instructions, usage, and badge code format.
 
+## [Habbos v2 Landing Widget](habbos_v2_landing/)
+
+Port of the Flash-based `habbos_v2.swf` landing widget. Reuses the SWF-extracted UI assets, loads promo Habbo XML from Lisbon/Havana-style endpoints, and exposes a `window.HabboLandingWidget` embed API. See the [Habbos v2 README](habbos_v2_landing/README.md) for build instructions and integration options.
+
 ## Licence
 
 See [LICENSE](LICENSE).
