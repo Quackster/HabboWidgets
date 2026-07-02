@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Habbos v2 Landing HTML5 Port</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: #2f4858;
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+      }
+
+      #habbos-v2-container {
+        width: 396px;
+        height: 377px;
+      }
+    </style>
+    <script>
+      window.HabbosV2LandingConfig = {
+        container: 'habbos-v2-container',
+        assetsPath: '',
+        assetsZipUrl: 'assets.zip',
+        habbosUrl: '/xml/promo_habbos.xml',
+        buttonLink: '/register',
+        createButtonText: 'Register today! ' + String.fromCharCode(187),
+        debug: true
+      };
+    </script>
+  </head>
+  <body>
+    <div id="habbos-v2-container"></div>
+    <script type="module" src="/src/index.ts"></script>
+  </body>
+</html>

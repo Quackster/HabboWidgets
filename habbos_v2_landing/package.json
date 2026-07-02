@@ -1,0 +1,21 @@
+{
+  "name": "habbos-v2-landing",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "extract-assets": "node scripts/extract-assets.mjs",
+    "bundle-assets": "node scripts/build-asset-bundle.mjs",
+    "dev": "npm run extract-assets && npm run bundle-assets && vite",
+    "build": "npm run extract-assets && tsc --noEmit && vite build && node scripts/build-asset-bundle.mjs",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "fflate": "^0.8.3"
+  },
+  "devDependencies": {
+    "pngjs": "^7.0.0",
+    "typescript": "^6.0.3",
+    "vite": "^8.1.2"
+  }
+}
